@@ -77,7 +77,7 @@ export class SonosHomebridgePlatform implements DynamicPlatformPlugin {
                 const displayName = model.roomName || 'Sonos Device';
 
                 const ipAddress = device.host;
-                const macAddress = model.MACAddress || model.serialNum?.split(':')[0]; // Fallback if MAC not explicit
+                const macAddress = (model.MACAddress || model.serialNum)?.trim(); // Fallback if MAC not explicit
 
                 // FILTERING LOGIC
                 let shouldAdd = false;

@@ -173,6 +173,33 @@ describe('SonosHomebridgePlatform', () => {
         expect(existingAccessory.context).toHaveProperty('device', mockDevice);
     });
 
+    it('allows strict filtering by serial-number-derived MAC when MACAddress is missing', async () => {
+        config.devices = [
+            { deviceName: 'Serial Room', macAddress: 'SN-123-456' },
+        ];
+
+        const mockDevice = {
+            host: '192.168.1.150',
+            deviceDescription: jest.fn().mockResolvedValue({
+                UDN: 'uuid:serial',
+                roomName: 'Serial Room',
+                serialNum: 'SN-123-456',
+            }),
+        };
+
+        mockDeviceDiscovery.mockImplementation((callback) => {
+            callback(mockDevice);
+        });
+
+        await platform.discoverDevices();
+        await new Promise(process.nextTick);
+
+        const registerCalls = api.registerPlatformAccessories.mock.calls;
+        const registeredNames = registerCalls.flatMap((call: any[]) => call[2].map((acc: any) => acc.displayName));
+
+        expect(registeredNames).toContain('Serial Room');
+    });
+
     it('should filter devices based on strict "devices" config (IP/MAC)', async () => {
         // Update config to use strict filtering
         config.devices = [
