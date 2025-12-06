@@ -16,7 +16,23 @@ A Homebridge plugin to integrate Sonos speakers into HomeKit, specifically focus
    ```bash
    npm install -g homebridge-sonos-hb-plugin
    ```
-   *Note: If you are installing from a local directory for development, use `npm link`.*
+### Manual Installation (via npm pack)
+If you want to install this plugin manually (e.g., for testing a local build):
+
+1. **Pack the plugin**:
+   Run the following command in the root of the project to create a `.tgz` file (e.g., `homebridge-sonos-hb-plugin-2.0.0.tgz`):
+   ```bash
+   npm pack
+   ```
+
+2. **Install the package**:
+   Copy the generated `.tgz` file to your Homebridge server (if different) and run:
+   ```bash
+   npm install -g ./homebridge-sonos-hb-plugin-2.0.0.tgz
+   ```
+
+3. **Restart Homebridge**:
+   Restart your Homebridge service to load the new plugin version.
 
 ## Configuration
 
