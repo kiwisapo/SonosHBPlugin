@@ -9,7 +9,25 @@
                 "title": "Name",
                 "type": "string",
                 "default": "Sonos"
+            },
+            "deviceNames": {
+                "title": "Device Names",
+                "type": "array",
+                "description": "List of Sonos room names to expose to HomeKit (e.g. 'Living Room'). Devices not listed here will be ignored.",
+                "items": {
+                    "type": "string",
+                    "title": "Room Name"
+                }
             }
         }
-    }
+    },
+    "layout": [
+        "name",
+        {
+            "key": "deviceNames",
+            "type": "array",
+            "orderable": false,
+            "buttonText": "Add Room Name"
+        }
+    ]
 }

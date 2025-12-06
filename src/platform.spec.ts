@@ -66,6 +66,7 @@ describe('SonosHomebridgePlatform', () => {
         config = {
             name: 'Sonos',
             platform: 'SonosHBPlugin',
+            deviceNames: ['Living Room', 'Bedroom'], // Added for testing filtering
         };
 
         platform = new SonosHomebridgePlatform(log, config, api);
