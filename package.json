@@ -1,14 +1,14 @@
 {
     "name": "homebridge-sonos-hb-plugin",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "description": "Sonos Homebridge Plugin",
     "license": "ISC",
     "keywords": [
         "homebridge-plugin"
     ],
     "engines": {
-        "node": ">=16.13.0",
-        "homebridge": ">=1.6.0"
+        "node": "^18.20.4 || ^20.15.1 || ^22",
+        "homebridge": "^1.6.0 || ^2.0.0"
     },
     "main": "dist/index.js",
     "scripts": {
@@ -19,9 +19,11 @@
     },
     "devDependencies": {
         "@types/jest": "^30.0.0",
-        "@types/node": "^16.11.10",
+        "@types/node": "^22.0.0",
+        "@typescript-eslint/eslint-plugin": "^8.48.1",
+        "@typescript-eslint/parser": "^8.48.1",
         "eslint": "^8.0.0",
-        "homebridge": "^1.6.0",
+        "homebridge": "^1.8.0",
         "jest": "^30.2.0",
         "ts-jest": "^29.4.6",
         "ts-node": "^10.9.2",

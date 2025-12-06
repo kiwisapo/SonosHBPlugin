@@ -3,8 +3,7 @@ import { API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, 
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
 import { SonosPlatformAccessory } from './platformAccessory';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { DeviceDiscovery } = require('sonos');
+import { DeviceDiscovery } from 'sonos';
 
 
 /**

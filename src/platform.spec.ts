@@ -78,7 +78,7 @@ describe('SonosHomebridgePlatform', () => {
 
     it('should discover devices and register new accessories', async () => {
         // Trigger discoverDevices via the callback (simulate startup)
-        const didFinishLaunchingCallback = api.on.mock.calls[0][1];
+        // const didFinishLaunchingCallback = api.on.mock.calls[0][1];
 
         // Ensure 'Living Room' is allowed
         config.deviceNames = ['Living Room'];

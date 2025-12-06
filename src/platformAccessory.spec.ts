@@ -1,4 +1,4 @@
-import { Service, Characteristic } from 'homebridge';
+// import { Service, Characteristic } from 'homebridge';
 import { SonosPlatformAccessory } from './platformAccessory';
 import { SonosHomebridgePlatform } from './platform';
 
@@ -14,9 +14,8 @@ describe('SonosPlatformAccessory', () => {
     let platform: any;
     let device: any;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    let serviceNightSound: any;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    let serviceSpeechEnhancement: any;
+    // let serviceNightSound: any;
+    // let serviceSpeechEnhancement: any;
 
     beforeEach(() => {
         mockFetch.mockReset();
