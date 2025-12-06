@@ -1,6 +1,11 @@
 import { API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, Service, Characteristic } from 'homebridge';
 
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
+import { SonosPlatformAccessory } from './platformAccessory';
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { DeviceDiscovery } = require('sonos');
+
 
 /**
  * HomebridgePlatform
@@ -48,58 +53,35 @@ export class SonosHomebridgePlatform implements DynamicPlatformPlugin {
      * Accessories must only be registered once, previously created accessories
      * must not be registered again to prevent "duplicate UUID" errors.
      */
-    discoverDevices() {
+    async discoverDevices() {
 
-        // EXAMPLE ONLY
-        // A real plugin you would discover accessories from the local network, cloud services
-        // or a user-defined array in the platform config.
-        const exampleDevices = [
-            {
-                uniqueId: 'ABCD',
-                displayName: 'Bedroom',
-            },
-            {
-                uniqueId: 'EFGH',
-                displayName: 'Kitchen',
-            },
-        ];
+        this.log.info('Starting Sonos device discovery...');
 
-        // loop over the discovered devices and register each one if it has not already been registered
-        for (const device of exampleDevices) {
+        DeviceDiscovery((device: any) => {
+            this.log.info('Found device:', device.host);
 
-            // generate a unique id for the accessory this should be generated from
-            // something globally unique, but constant, for example, the device serial
-            // number or MAC address
-            const uuid = this.api.hap.uuid.generate(device.uniqueId);
+            // We can get details like serial number or friendly name
+            device.deviceDescription().then((model: any) => {
+                const uuid = this.api.hap.uuid.generate(model.UDN || device.host);
+                const displayName = model.roomName || 'Sonos Device';
 
-            // see if an accessory with the same uuid has already been registered and restored from
-            // the cached devices we stored in the `configureAccessory` method above
-            const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
+                const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
 
-            if (existingAccessory) {
-                // the accessory already exists
-                this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
-
-                // if you need to update the accessory.context then you should run `api.updatePlatformAccessories`. eg.:
-                // existingAccessory.context.device = device;
-                // this.api.updatePlatformAccessories([existingAccessory]);
-
-                // create the accessory handler for the restored accessory
-                // this.api.updatePlatformAccessories([existingAccessory]);
-            } else {
-                // the accessory does not yet exist, so we need to create it
-                this.log.info('Adding new accessory:', device.displayName);
-
-                // create a new accessory
-                const accessory = new this.api.platformAccessory(device.displayName, uuid);
-
-                // store a copy of the device object in the `accessory.context`
-                // the `context` property can be used to store any data about the accessory you may need
-                accessory.context.device = device;
-
-                // create the accessory handler for the newly create accessory
-                // this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
-            }
-        }
+                if (existingAccessory) {
+                    this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
+                    existingAccessory.context.device = device;
+                    this.api.updatePlatformAccessories([existingAccessory]);
+                    new SonosPlatformAccessory(this, existingAccessory);
+                } else {
+                    this.log.info('Adding new accessory:', displayName);
+                    const accessory = new this.api.platformAccessory(displayName, uuid);
+                    accessory.context.device = device;
+                    new SonosPlatformAccessory(this, accessory);
+                    this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+                }
+            }).catch((err: any) => {
+                this.log.error('Error getting device description:', err);
+            });
+        });
     }
 }

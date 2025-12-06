@@ -15,12 +15,24 @@
         "build": "tsc",
         "watch": "tsc -w",
         "lint": "eslint src/**.ts",
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "jest"
     },
     "devDependencies": {
+        "@types/jest": "^30.0.0",
         "@types/node": "^16.11.10",
         "eslint": "^8.0.0",
         "homebridge": "^1.6.0",
+        "jest": "^30.2.0",
+        "ts-jest": "^29.4.6",
+        "ts-node": "^10.9.2",
         "typescript": "^4.5.2"
+    },
+    "dependencies": {
+        "@types/node-fetch": "^2.6.13",
+        "node-fetch": "^2.7.0",
+        "sonos": "^1.14.2"
+    },
+    "overrides": {
+        "ip": "^2.0.1"
     }
 }
