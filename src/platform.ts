@@ -57,10 +57,11 @@ export class SonosHomebridgePlatform implements DynamicPlatformPlugin {
      */
     async discoverDevices() {
         const configuredDevices: string[] = this.config.deviceNames || [];
+        const strictDevices: { deviceName: string; ipAddress?: string; macAddress?: string }[] = this.config.devices || [];
 
-        if (configuredDevices.length === 0) {
-            this.log.warn('No devices configured in "deviceNames". No Sonos devices will be added.');
-            this.log.warn('Please add your Sonos Room Names to the "deviceNames" list in the Homebridge configuration.');
+        if (configuredDevices.length === 0 && strictDevices.length === 0) {
+            this.log.warn('No devices configured in "deviceNames" or "devices". No Sonos devices will be added.');
+            this.log.warn('Please add your Sonos Room Names to the "deviceNames" list or use "devices" for strict filtering in the Homebridge configuration.');
             return;
         }
 
@@ -76,9 +77,41 @@ export class SonosHomebridgePlatform implements DynamicPlatformPlugin {
                 const uuid = this.api.hap.uuid.generate(model.UDN || device.host);
                 const displayName = model.roomName || 'Sonos Device';
 
-                // FILTERING LOGIC: Check if this device is in the allowed list
-                if (!configuredDevices.includes(displayName)) {
-                    this.log.info(`Ignoring discovered device "${displayName}" (${device.host}) as it is not in the "deviceNames" list.`);
+                const ipAddress = device.host;
+                const macAddress = model.MACAddress || model.serialNum?.split(':')[0]; // Fallback if MAC not explicit
+
+                // FILTERING LOGIC
+                let shouldAdd = false;
+
+                if (strictDevices.length > 0) {
+                    // Strict filtering takes precedence
+                    const match = strictDevices.find(d => {
+                        if (d.deviceName !== displayName) { return false; }
+
+                        // Check IP if configured
+                        if (d.ipAddress && d.ipAddress !== ipAddress) { return false; }
+
+                        // Check MAC if configured
+                        if (d.macAddress && d.macAddress !== macAddress) { return false; }
+
+                        return true;
+                    });
+
+                    if (match) {
+                        shouldAdd = true;
+                    } else {
+                        this.log.debug(`Ignoring discovered device "${displayName}" (IP: ${ipAddress}, MAC: ${macAddress}) as it does not match any entry in "devices".`);
+                    }
+                } else {
+                    // Legacy filtering
+                    if (configuredDevices.includes(displayName)) {
+                        shouldAdd = true;
+                    } else {
+                        this.log.debug(`Ignoring discovered device "${displayName}" as it is not in the "deviceNames" list.`);
+                    }
+                }
+
+                if (!shouldAdd) {
                     return;
                 }
 

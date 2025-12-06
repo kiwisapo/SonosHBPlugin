@@ -18,6 +18,31 @@
                     "type": "string",
                     "title": "Room Name"
                 }
+            },
+            "devices": {
+                "title": "Devices (Strict Filter)",
+                "type": "array",
+                "description": "List of Sonos devices to expose using Name AND (IP Address OR MAC Address). If this list is populated, it takes precedence over 'Device Names'.",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "deviceName": {
+                            "type": "string",
+                            "title": "Device Name (Required)"
+                        },
+                        "ipAddress": {
+                            "type": "string",
+                            "title": "IP Address (Optional)"
+                        },
+                        "macAddress": {
+                            "type": "string",
+                            "title": "MAC Address (Optional)"
+                        }
+                    },
+                    "required": [
+                        "deviceName"
+                    ]
+                }
             }
         }
     },

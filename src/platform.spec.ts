@@ -80,6 +80,9 @@ describe('SonosHomebridgePlatform', () => {
         // Trigger discoverDevices via the callback (simulate startup)
         const didFinishLaunchingCallback = api.on.mock.calls[0][1];
 
+        // Ensure 'Living Room' is allowed
+        config.deviceNames = ['Living Room'];
+
         // Setup DeviceDiscovery mock to callback immediately with a mock device
         const mockDevice = {
             host: '192.168.1.50',
@@ -132,6 +135,9 @@ describe('SonosHomebridgePlatform', () => {
             callback(mockDevice);
         });
 
+        // Temporarily update config to allow 'Bedroom' for this test
+        config.deviceNames = ['Bedroom'];
+
         // Pre-load an accessory into cache
         const existingUuid = 'generated-uuid-uuid:existing';
         const existingAccessory = {
@@ -165,5 +171,81 @@ describe('SonosHomebridgePlatform', () => {
         // Should update existing
         expect(api.updatePlatformAccessories).toHaveBeenCalledWith([existingAccessory]);
         expect(existingAccessory.context).toHaveProperty('device', mockDevice);
+    });
+
+    it('should filter devices based on strict "devices" config (IP/MAC)', async () => {
+        // Update config to use strict filtering
+        config.devices = [
+            { deviceName: 'IP Room', ipAddress: '192.168.1.100' },
+            { deviceName: 'MAC Room', macAddress: 'AA:BB:CC:DD:EE:FF' },
+            { deviceName: 'Strict Room', ipAddress: '10.0.0.1', macAddress: '11:22:33:44:55:66' }
+        ];
+
+        const mockDevices = [
+            // Success: IP Match
+            {
+                host: '192.168.1.100',
+                deviceDescription: jest.fn().mockResolvedValue({
+                    UDN: 'uuid:ip',
+                    roomName: 'IP Room',
+                    MACAddress: 'XX:XX:XX:XX:XX:XX'
+                })
+            },
+            // Success: MAC Match
+            {
+                host: '192.168.1.200', // Different IP
+                deviceDescription: jest.fn().mockResolvedValue({
+                    UDN: 'uuid:mac',
+                    roomName: 'MAC Room',
+                    MACAddress: 'AA:BB:CC:DD:EE:FF'
+                })
+            },
+            // Fail: IP Mismatch (Name matches but IP wrong)
+            {
+                host: '192.168.1.101',
+                deviceDescription: jest.fn().mockResolvedValue({
+                    UDN: 'uuid:ip-fail',
+                    roomName: 'IP Room',
+                    MACAddress: 'XX:XX:XX:XX:XX:XX'
+                })
+            },
+            // Fail: MAC Mismatch (Name matches but MAC wrong)
+            {
+                host: '192.168.1.201',
+                deviceDescription: jest.fn().mockResolvedValue({
+                    UDN: 'uuid:mac-fail',
+                    roomName: 'MAC Room',
+                    MACAddress: '00:00:00:00:00:00'
+                })
+            },
+            // Success: Both Match
+            {
+                host: '10.0.0.1',
+                deviceDescription: jest.fn().mockResolvedValue({
+                    UDN: 'uuid:strict',
+                    roomName: 'Strict Room',
+                    MACAddress: '11:22:33:44:55:66'
+                })
+            }
+        ];
+
+        mockDeviceDiscovery.mockImplementation((callback) => {
+            mockDevices.forEach(d => callback(d));
+        });
+
+        await platform.discoverDevices();
+        await new Promise(process.nextTick);
+
+        // Helper to find calls to registerPlatformAccessories
+        const registerCalls = api.registerPlatformAccessories.mock.calls;
+        const registeredNames = registerCalls.flatMap((call: any[]) => call[2].map((acc: any) => acc.displayName));
+
+        expect(registeredNames).toContain('IP Room');
+        expect(registeredNames).toContain('MAC Room');
+        expect(registeredNames).toContain('Strict Room');
+
+        // Ensure failures were not registered (implied by checking count if unique names)
+        expect(registeredNames.filter((n: string) => n === 'IP Room').length).toBe(1);
+        expect(registeredNames.filter((n: string) => n === 'MAC Room').length).toBe(1);
     });
 });
