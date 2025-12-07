@@ -1,4 +1,7 @@
-import schema from '../config.schema.json';
+import * as fs from 'fs';
+import * as path from 'path';
+
+const schema = JSON.parse(fs.readFileSync(path.join(__dirname, '../config.schema.json'), 'utf-8'));
 
 describe('config.schema.json layout', () => {
     it('includes strict devices array with expected fields', () => {
