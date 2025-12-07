@@ -132,4 +132,26 @@ describe('SonosPlatformAccessory', () => {
         await expect(sonosAccessory.setNightSound(true)).rejects.toThrow('Network Error');
         expect(platform.log.error).toHaveBeenCalled();
     });
+
+    it('should throw and log when SetEQ responds with an error', async () => {
+        const errorResponse = {
+            ok: false,
+            status: 500,
+            statusText: 'Error',
+        };
+
+        mockFetch.mockResolvedValue(errorResponse);
+        const sonosAccessory = new SonosPlatformAccessory(platform, accessory);
+
+        await expect(sonosAccessory.setNightSound(true)).rejects
+            .toThrow('SOAP request failed: 500 Error');
+        expect(platform.log.error).toHaveBeenCalledWith('Error setting EQ:', expect.any(Error));
+
+        platform.log.error.mockClear();
+        mockFetch.mockResolvedValue(errorResponse);
+
+        await expect(sonosAccessory.setSpeechEnhancement(true)).rejects
+            .toThrow('SOAP request failed: 500 Error');
+        expect(platform.log.error).toHaveBeenCalledWith('Error setting EQ:', expect.any(Error));
+    });
 });
