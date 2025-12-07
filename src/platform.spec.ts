@@ -2,7 +2,6 @@ import { SonosHomebridgePlatform } from './platform';
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
 
 // Mock sonos library
-// Mock sonos library
 jest.mock('sonos', () => {
     return {
         DeviceDiscovery: jest.fn(),
