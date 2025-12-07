@@ -53,6 +53,22 @@
             "type": "array",
             "orderable": false,
             "buttonText": "Add Room Name"
+        },
+        {
+            "key": "devices",
+            "type": "array",
+            "orderable": false,
+            "buttonText": "Add Device",
+            "items": [
+                {
+                    "type": "section",
+                    "items": [
+                        "devices[].deviceName",
+                        "devices[].ipAddress",
+                        "devices[].macAddress"
+                    ]
+                }
+            ]
         }
     ]
 }
