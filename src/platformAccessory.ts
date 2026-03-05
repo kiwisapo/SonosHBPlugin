@@ -84,8 +84,7 @@ export class SonosPlatformAccessory {
                 </s:Envelope>
             `;
 
-            // Prepare the fetch request
-            const fetch = (await import('node-fetch')).default;
+            // We can now use the global native fetch API without any import.
             const url = `http://${device.host}:1400${endpoint}`;
 
             this.platform.log.debug(`Sending SetEQ request to ${device.host}: ${eqType} = ${value}`);
